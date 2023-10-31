@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "vndb"
+version = "0.1.0"
+description = ""
+authors = ["andrey <kuznetsow42@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^4.2.6"
+django-filter = "^23.3"
+djangorestframework = "^3.14.0"
+drf-spectacular = "^0.26.5"
+psycopg2 = "^2.9.9"
+pillow = "^10.1.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
