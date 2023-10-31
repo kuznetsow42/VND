@@ -3,4 +3,4 @@
 *.pyd
 __pycache__/
 .idea/
-vnd/.env
+*.env
