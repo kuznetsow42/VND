@@ -32,6 +32,8 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'django_filters',
 
+    # vnd
+    'users.apps.UsersConfig'
 ]
 
 MIDDLEWARE = [
@@ -77,6 +79,8 @@ DATABASES = {
         'PORT': os.environ.get("DB_PORT"),
     }
 }
+
+AUTH_USER_MODEL = 'users.CustomUser'
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
