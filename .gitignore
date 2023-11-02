@@ -3,4 +3,5 @@
 *.pyd
 __pycache__/
 .idea/
+vnd/media/
 *.env

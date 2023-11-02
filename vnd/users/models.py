@@ -37,12 +37,12 @@ class Status(models.Model):
 
 
 class CustomUser(AbstractUser):
-    avatar = models.ImageField(upload_to="users/avatars")
+    avatar = models.ImageField(upload_to="users/avatars", default="users/avatars/default.png", blank=True)
     status = models.ForeignKey(Status, related_name="users", to_field="name",
                                on_delete=models.SET_NULL, null=True, blank=True)
-    bio = models.TextField()
-    favorite_engines = models.ManyToManyField(Engine, related_name="users")
-    links = models.ManyToManyField(Link)
+    bio = models.TextField(null=True, blank=True)
+    favorite_engines = models.ManyToManyField(Engine, related_name="users", blank=True)
+    links = models.ManyToManyField(Link, blank=True)
 
     def __str__(self):
         return self.username
