@@ -2,7 +2,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
-from users.models import CustomUser
+from users.models import CustomUser, Engine
 
 client = APIClient()
 
@@ -25,6 +25,11 @@ def user():
 @pytest.fixture
 def token(user):
     return str(AccessToken.for_user(user))
+
+@pytest.fixture
+def engine():
+    return Engine.objects.create(name="Test", links={"test": "test"}, description="dsadsafeqwas")
+
 
 
 @pytest.mark.django_db
@@ -62,5 +67,19 @@ class TestUsersViews:
         response = client.delete(path)
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert CustomUser.objects.count() == 0
+
+
+@pytest.mark.django_db
+class TestEngineViewSet:
+
+    def test_permissions(self, engine):
+        path = "/api/v1/users/engines/"
+        response = client.delete(f'{path}{engine.id}/')
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        response = client.post(path)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        response = client.get(path)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data[0]["name"] == "Test"
 
 
