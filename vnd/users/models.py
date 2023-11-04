@@ -2,24 +2,9 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-class Link(models.Model):
-    name = models.CharField(max_length=70)
-    url = models.URLField()
-    type = models.CharField(choices=[
-        ("d", "Documentation"),
-        ("w", "WebSite"),
-        ("s", "Social media"),
-        ("c", "Code"),
-    ])
-    icon = models.ImageField(upload_to="icons")
-
-    def __str__(self):
-        return self.name
-
-
 class Engine(models.Model):
     name = models.CharField(max_length=70)
-    links = models.ManyToManyField(Link)
+    links = models.JSONField()
     description = models.TextField()
 
     def __str__(self):
@@ -42,7 +27,7 @@ class CustomUser(AbstractUser):
                                on_delete=models.SET_NULL, null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
     favorite_engines = models.ManyToManyField(Engine, related_name="users", blank=True)
-    links = models.ManyToManyField(Link, blank=True)
+    links = models.JSONField(blank=True, null=True)
 
     def __str__(self):
         return self.username
