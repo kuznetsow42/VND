@@ -4,7 +4,9 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from users.models import CustomUser, Engine
 
-client = APIClient()
+@pytest.fixture
+def client():
+    return APIClient()
 
 
 @pytest.fixture
@@ -34,14 +36,14 @@ def engine():
 
 @pytest.mark.django_db
 class TestAuthentication:
-    def test_user_registration(self, user_data):
+    def test_user_registration(self, user_data, client):
         path = "/api/v1/users/register/"
         response = client.post(path, user_data, format="json")
         assert response.status_code == status.HTTP_201_CREATED
         assert "password" not in response.data
         assert CustomUser.objects.count() == 1
 
-    def test_user_login(self, user):
+    def test_user_login(self, user, client):
         path = "/api/v1/users/login/"
         response = client.post(path, {"username": "testuser", "password": "123wedsadweq"}, format="json")
         assert response.status_code == status.HTTP_200_OK
@@ -50,13 +52,13 @@ class TestAuthentication:
 
 @pytest.mark.django_db
 class TestUsersViews:
-    def test_user_list(self, user):
+    def test_user_list(self, user, client):
         path = "/api/v1/users/"
         response = client.get(path)
         assert response.status_code == status.HTTP_200_OK
         assert response.data[0]["username"] == "testuser"
 
-    def test_user_detail(self, user, token):
+    def test_user_detail(self, user, token, client):
         path = "/api/v1/users/detail/"
         response = client.get(path)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -70,16 +72,22 @@ class TestUsersViews:
 
 
 @pytest.mark.django_db
-class TestEngineViewSet:
+class TestEnginePermissions:
 
-    def test_permissions(self, engine):
+    def test_get(self, engine, client):
         path = "/api/v1/users/engines/"
-        response = client.delete(f'{path}{engine.id}/')
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        response = client.post(path)
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
         response = client.get(path)
         assert response.status_code == status.HTTP_200_OK
         assert response.data[0]["name"] == "Test"
+
+    def test_create(self, client):
+        path = "/api/v1/users/engines/"
+        response = client.post(path)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_delete(self, engine, client):
+        path = f"/api/v1/users/engines/{engine.id}/"
+        response = client.delete(path)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
