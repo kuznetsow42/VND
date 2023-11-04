@@ -1,3 +1,8 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 
-# Register your models here.
+from .models import CustomUser, Status, Engine
+
+admin.site.register(CustomUser, UserAdmin)
+admin.site.register(Status)
+admin.site.register(Engine)
