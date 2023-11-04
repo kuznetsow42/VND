@@ -4,6 +4,7 @@ from django.db import models
 
 class Engine(models.Model):
     name = models.CharField(max_length=70)
+    image = models.ImageField(upload_to="engines", default="engines/default.png")
     links = models.JSONField()
     description = models.TextField()
 
