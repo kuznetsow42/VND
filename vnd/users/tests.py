@@ -33,7 +33,6 @@ def engine():
     return Engine.objects.create(name="Test", links={"test": "test"}, description="dsadsafeqwas")
 
 
-
 @pytest.mark.django_db
 class TestAuthentication:
     def test_user_registration(self, user_data, client):
@@ -47,7 +46,7 @@ class TestAuthentication:
         path = "/api/v1/users/login/"
         response = client.post(path, {"username": "testuser", "password": "123wedsadweq"}, format="json")
         assert response.status_code == status.HTTP_200_OK
-        assert "username" in response.data
+        assert set(response.data.keys()) == {"access", "refresh", "username", "avatar"}
 
 
 @pytest.mark.django_db
