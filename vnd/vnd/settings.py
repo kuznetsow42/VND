@@ -34,7 +34,8 @@ INSTALLED_APPS = [
     'django_filters',
 
     # vnd
-    'users.apps.UsersConfig'
+    'users.apps.UsersConfig',
+    'api.apps.ApiConfig'
 ]
 
 MIDDLEWARE = [
