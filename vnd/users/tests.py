@@ -21,8 +21,9 @@ def user_data():
 
 
 @pytest.fixture
-def user():
+def user(engine):
     user = CustomUser.objects.create_user(username="testuser", password="123wedsadweq")
+    user.favorite_engines.set([engine])
     return user
 
 
@@ -59,11 +60,12 @@ class TestAuthentication:
 
 @pytest.mark.django_db
 class TestUsersViews:
-    def test_user_list(self, user, client):
+    def test_user_list(self, user, engine, client):
         path = "/api/v1/users/"
         response = client.get(path)
         assert response.status_code == HTTP_200_OK
         assert response.data[0]["username"] == "testuser"
+        assert response.data[0]["favorite_engines"][0]["name"] == engine.name
 
     def test_user_detail(self, user, token, client):
         path = "/api/v1/users/detail/"
