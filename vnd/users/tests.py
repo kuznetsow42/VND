@@ -82,21 +82,21 @@ class TestUsersViews:
 class TestPermissions:
 
     def test_get(self, engine, client):
-        path = "/api/v1/users/"
+        path = "/api/v1/"
         response = client.get(path + "engines/")
         assert response.status_code == HTTP_200_OK
         response = client.get(path + "statuses/")
         assert response.status_code == HTTP_200_OK
 
     def test_create(self, client):
-        path = "/api/v1/users/"
+        path = "/api/v1/"
         response = client.post(path + "engines/")
         assert response.status_code == HTTP_401_UNAUTHORIZED
         response = client.post(path + "statuses/")
         assert response.status_code == HTTP_401_UNAUTHORIZED
 
     def test_delete(self, engine, status, client):
-        path = f"/api/v1/users/"
+        path = "/api/v1/"
         response = client.delete(path + f"engines/{engine.id}/")
         assert response.status_code == HTTP_401_UNAUTHORIZED
         response = client.delete(path + f"engines/{id}/")
