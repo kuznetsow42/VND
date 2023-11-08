@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from users.models import CustomUser, Engine, Status
+from users.models import CustomUser
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -20,7 +20,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(TokenObtainPairSerializer):
-
     def validate(self, attrs):
         data = super().validate(attrs)
         data["username"] = self.user.username
@@ -39,16 +38,4 @@ class UserDetailSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ["id", "username", "avatar", "status", "email", "bio",
                   "favorite_engines", "links", "first_name", "last_name"]
-
-
-class EngineSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Engine
-        fields = "__all__"
-
-
-class StatusSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Status
-        fields = "__all__"
 

@@ -2,10 +2,11 @@ from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from rest_framework.routers import SimpleRouter
 
-from users.views import EngineViewSet
+from .views import EngineViewSet, StatusViewSet
 
 router = SimpleRouter()
 router.register(r"engines", EngineViewSet)
+router.register(r"statuses", StatusViewSet)
 
 urlpatterns = [
     path('users/', include("users.urls")),
