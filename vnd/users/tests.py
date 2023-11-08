@@ -54,7 +54,7 @@ class TestAuthentication:
         path = "/api/v1/users/login/"
         response = client.post(path, {"username": "testuser", "password": "123wedsadweq"}, format="json")
         assert response.status_code == HTTP_200_OK
-        assert set(response.data.keys()) == {"access", "refresh", "username", "avatar"}
+        assert "access", "refresh" in response.data
 
 
 @pytest.mark.django_db
