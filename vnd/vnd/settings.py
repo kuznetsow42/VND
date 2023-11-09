@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'django_filters',
     'corsheaders',
+    'rest_framework_serializer_extensions',
 
     # vnd
     'users.apps.UsersConfig',

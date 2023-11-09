@@ -1,7 +1,10 @@
 from rest_framework import serializers
+from rest_framework_serializer_extensions.serializers import SerializerExtensionsMixin
+
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+from api.serializers import StatusSerializer, EngineSerializer
 from users.models import CustomUser
 
 
@@ -35,12 +38,14 @@ class UserSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-class UserDetailSerializer(serializers.ModelSerializer):
+class UserDetailSerializer(SerializerExtensionsMixin, serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ["id", "username", "avatar", "status", "email", "bio",
-                  "favorite_engines", "links", "first_name", "last_name"]
-
-        depth = 1
-
-
+        fields = ["id", "username", "avatar", "email", "bio", "links", "first_name", "last_name", "status"]
+        expandable_fields = {
+            "favorite_engines": {
+                "serializer": EngineSerializer,
+                "many": True,
+                "readonly": False
+        }
+        }

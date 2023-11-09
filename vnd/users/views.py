@@ -2,6 +2,7 @@ from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework_serializer_extensions.views import SerializerExtensionsAPIViewMixin
 
 from users.models import CustomUser
 from users.serializers import RegisterSerializer, UserSerializer, UserDetailSerializer
@@ -17,9 +18,10 @@ class UsersReadOnly(ReadOnlyModelViewSet):
     serializer_class = UserSerializer
 
 
-class UserDetail(RetrieveUpdateDestroyAPIView):
+class UserDetail(SerializerExtensionsAPIViewMixin, RetrieveUpdateDestroyAPIView):
     serializer_class = UserDetailSerializer
     permission_classes = [IsAuthenticated]
+    extensions_expand = {'favorite_engines'}
 
     def get_object(self):
         return CustomUser.objects.get(pk=self.request.user.pk)
