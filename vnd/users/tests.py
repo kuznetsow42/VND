@@ -87,6 +87,11 @@ class TestUsersViews:
         response = client.patch(path, {"favorite_engines": engine.id, "action": "add"})
         assert response.data["favorite_engines"][0]["name"] == engine.name
 
+    def test_user_detail_patch(self, user, token, client):
+        path = "/api/v1/users/detail/"
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + token)
+        response = client.patch(path, {"username": "changed_username"})
+        assert response.data["username"] == "changed_username"
 
 @pytest.mark.django_db
 class TestPermissions:
