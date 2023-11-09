@@ -27,7 +27,8 @@ class UserDetail(RetrieveUpdateDestroyAPIView):
     def patch(self, request, *args, **kwargs):
         data = request.data
         if "favorite_engines" not in data:
-            super().patch(request, *args, **kwargs)
+            kwargs['partial'] = True
+            return self.update(request, *args, **kwargs)
         else:
             user = self.get_object()
             serializer = self.get_serializer(user, data=data, partial=True)
