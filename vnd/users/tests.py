@@ -79,6 +79,14 @@ class TestUsersViews:
         assert response.status_code == HTTP_204_NO_CONTENT
         assert CustomUser.objects.count() == 0
 
+    def test_m2m(self, user, token, client, engine):
+        path = "/api/v1/users/detail/"
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + token)
+        response = client.patch(path, {"favorite_engines": engine.id, "action": "delete"})
+        assert response.data["favorite_engines"] == []
+        response = client.patch(path, {"favorite_engines": engine.id, "action": "add"})
+        assert response.data["favorite_engines"][0]["name"] == engine.name
+
 
 @pytest.mark.django_db
 class TestPermissions:
