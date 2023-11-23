@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     # vnd
     'users.apps.UsersConfig',
     'api.apps.ApiConfig',
+    'posts.apps.PostsConfig',
 ]
 
 MIDDLEWARE = [

@@ -1,6 +1,13 @@
 from django.db import models
 
 
+class Tag(models.Model):
+    name = models.CharField(max_length=35)
+
+    def __str__(self):
+        return self.name
+
+
 class Engine(models.Model):
     name = models.CharField(max_length=70)
     image = models.ImageField(upload_to="engines", default="engines/default.png")
