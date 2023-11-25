@@ -1,7 +1,7 @@
 from django.db.models import Count, Q
 from rest_framework.decorators import action
 from rest_framework.generics import ListCreateAPIView
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 from rest_framework.viewsets import ModelViewSet
@@ -45,7 +45,9 @@ class PostViewSet(ModelViewSet):
     def get_permissions(self):
         if self.action in ["update", "partial_update", "destroy"]:
             return [IsOwnerOrAdmin()]
-        return [AllowAny()]
+        if self.action in ["list", "retrieve"]:
+            return [AllowAny()]
+        return[IsAuthenticated()]
 
     def get_serializer(self, *args, **kwargs):
         if self.action in ["list", "retrieve"]:
