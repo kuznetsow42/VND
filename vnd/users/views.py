@@ -14,7 +14,7 @@ class Register(CreateAPIView):
 
 
 class UsersReadOnly(ReadOnlyModelViewSet):
-    queryset = CustomUser.objects.all()
+    queryset = CustomUser.objects.select_related("status").prefetch_related("favorite_engines")
     serializer_class = UserSerializer
 
 
@@ -24,7 +24,7 @@ class UserDetail(SerializerExtensionsAPIViewMixin, RetrieveUpdateDestroyAPIView)
     extensions_expand = {'favorite_engines'}
 
     def get_object(self):
-        return CustomUser.objects.get(pk=self.request.user.pk)
+        return CustomUser.objects.select_related("status").get(pk=self.request.user.pk)
 
     def patch(self, request, *args, **kwargs):
         data = request.data
