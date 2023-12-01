@@ -1,4 +1,4 @@
-from django.db.models import Count, Q
+from django.db.models import Count, Q, F
 from rest_framework.decorators import action
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
@@ -8,7 +8,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from api.models import Tag
 from api.permissions import IsOwnerOrAdmin
-from posts.models import Image, Post, Category
+from posts.models import Image, Post, Category, UserPostRelation
 from posts.serializers import ImageSerializer, PostSerializer, UserPostRelationSerializer, CategorySerializer, \
     TagSerializer, CreatePostSerializer
 
@@ -39,20 +39,29 @@ class TagViewSet(ModelViewSet):
 
 
 class PostViewSet(ModelViewSet):
-    queryset = Post.objects.all().annotate(likes=Count("userpostrelation", filter=Q(userpostrelation__like=True)))
-    serializer_class = PostSerializer
+    queryset = Post.objects.all()
 
     def get_permissions(self):
         if self.action in ["update", "partial_update", "destroy"]:
             return [IsOwnerOrAdmin()]
         if self.action in ["list", "retrieve"]:
             return [AllowAny()]
-        return[IsAuthenticated()]
+        return [IsAuthenticated()]
 
     def get_serializer(self, *args, **kwargs):
         if self.action in ["list", "retrieve"]:
             return PostSerializer(*args, **kwargs, context={"request": self.request})
         return CreatePostSerializer(*args, **kwargs)
+
+    def get_queryset(self):
+        queryset = self.queryset.prefetch_related(
+            "authors",
+            "authors__status",
+            "tags",
+            "categories",
+        )
+        queryset = queryset.annotate(likes=Count("userpostrelation", filter=Q(userpostrelation__like=True)))
+        return queryset
 
     @action(detail=True, methods=["post", "patch"])
     def set_relation(self, request, pk):

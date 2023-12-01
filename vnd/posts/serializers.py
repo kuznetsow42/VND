@@ -1,9 +1,11 @@
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Count, Q
 from rest_framework import serializers
 
 from api.models import Tag
 from api.sanitizer import sanitize_text
 from posts.models import Image, Post, UserPostRelation, Category
-from users.serializers import UserSerializer
+from users.models import CustomUser
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -24,6 +26,12 @@ class TagSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class AuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ["id", "username", "avatar", "status", "bio", "links", "first_name", "last_name"]
+
+
 class CreatePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
@@ -36,27 +44,12 @@ class CreatePostSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     likes = serializers.IntegerField(read_only=True)
-    relation = serializers.SerializerMethodField(read_only=True)
-    tags = TagSerializer(many=True, read_only=True)
-    categories = CategorySerializer(many=True, read_only=True)
-    authors = UserSerializer(many=True, read_only=True)
+    authors = AuthorSerializer(many=True, read_only=True)
 
     class Meta:
         model = Post
-        fields = ["id", "title", "body", "tags", "created_at", "likes", "relation", "readers", "categories", "authors"]
-
-    def get_relation(self, obj):
-        user = self.context["request"].user
-        if user.is_anonymous or user not in obj.readers.all():
-            return {
-                "like": False,
-                "bookmark": False
-            }
-        relation = UserPostRelation.objects.get(user=user.pk, post=obj.pk)
-        return {
-            "like": relation.like,
-            "bookmark": relation.bookmark
-        }
+        fields = ["id", "title", "body", "tags", "created_at", "likes", "categories", "authors"]
+        depth = 1
 
 
 class UserPostRelationSerializer(serializers.ModelSerializer):
