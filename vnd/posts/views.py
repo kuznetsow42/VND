@@ -1,15 +1,14 @@
-from django.db.models import Count, Q
 from rest_framework.decorators import action
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
+from rest_framework.status import HTTP_200_OK
 from rest_framework.viewsets import ModelViewSet
 
 from api.models import Tag
 from api.permissions import IsOwnerOrAdmin
 from posts.models import Image, Post, Category
-from posts.serializers import ImageSerializer, PostSerializer, UserPostRelationSerializer, CategorySerializer, \
+from posts.serializers import ImageSerializer, PostSerializer, CategorySerializer, \
     TagSerializer, CreatePostSerializer
 
 
@@ -39,31 +38,44 @@ class TagViewSet(ModelViewSet):
 
 
 class PostViewSet(ModelViewSet):
-    queryset = Post.objects.all().annotate(likes=Count("userpostrelation", filter=Q(userpostrelation__like=True)))
-    serializer_class = PostSerializer
+    queryset = Post.objects.all()
 
     def get_permissions(self):
         if self.action in ["update", "partial_update", "destroy"]:
             return [IsOwnerOrAdmin()]
         if self.action in ["list", "retrieve"]:
             return [AllowAny()]
-        return[IsAuthenticated()]
+        return [IsAuthenticated()]
 
     def get_serializer(self, *args, **kwargs):
         if self.action in ["list", "retrieve"]:
             return PostSerializer(*args, **kwargs, context={"request": self.request})
         return CreatePostSerializer(*args, **kwargs)
 
-    @action(detail=True, methods=["post", "patch"])
+    def get_queryset(self):
+        queryset = self.queryset.prefetch_related(
+            "authors",
+            "authors__status",
+            "tags",
+            "categories",
+            "likes",
+            "bookmarks"
+        )
+        return queryset
+
+    @action(detail=True, methods=["post"])
     def set_relation(self, request, pk):
-        data = request.data
-        data["user"] = request.user.pk
-        data["post"] = pk
-        serializer = UserPostRelationSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        instance, created = serializer.update_or_create()
-        if created:
-            status_code = HTTP_201_CREATED
-        else:
-            status_code = HTTP_200_OK
-        return Response(instance, status=status_code)
+        post = Post.objects.get(pk=pk)
+        if "like" in request.data:
+            if request.data["like"]:
+                post.likes.add(request.user)
+            else:
+                post.likes.remove(request.user)
+        if "bookmark" in request.data:
+            if request.data["bookmark"]:
+                post.bookmarks.add(request.user)
+            else:
+                post.bookmarks.remove(request.user)
+        post.save()
+        return Response(PostSerializer(post, context={"request": request}).get_relation(post),
+                        status=HTTP_200_OK)

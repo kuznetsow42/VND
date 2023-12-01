@@ -1,10 +1,12 @@
+import json
+
 import pytest
 from model_bakery import baker
 from rest_framework.status import HTTP_200_OK
 from rest_framework.test import APIClient
 
 from api.models import Tag
-from posts.models import Category, Post, UserPostRelation
+from posts.models import Category, Post
 from users.models import CustomUser
 
 
@@ -117,34 +119,17 @@ class TestPosts:
         assert response.status_code == 401
         self.client.force_authenticate(user)
         response = self.client.patch(*args)
-        print([cat.id for cat in posts[0].categories.all()])
         assert response.status_code == 200
         assert response.data["categories"] != prev_categories
 
-
-@pytest.mark.django_db
-class TestUserPostRelation:
-    @pytest.fixture(autouse=True)
-    def setup(self, client, user, posts):
-        self.client = client
-        self.post = posts[0]
-        self.user = user
-        self.relation = {"bookmark": True, "like": True}
-
-    def test_permission(self):
-        args = [f"/api/v1/posts/{self.post.id}/set_relation/", self.relation]
-        response = self.client.post(*args, format="json")
-        assert response.status_code == 401
-
-    def test_relation(self):
+    def test_relations(self):
+        response = self.client.get("/api/v1/posts/")
+        assert response.data[0]["relation"] == {"like": False, "bookmark": False}
         self.client.force_authenticate(self.user)
-        args = [f"/api/v1/posts/{self.post.id}/set_relation/", self.relation]
-        response = self.client.post(*args, format="json")
-        assert response.status_code == 201
-        assert response.data == {"user": self.user.pk, "post": self.post.id, **self.relation}
-        assert self.post.readers.filter(pk=self.user.id).exists()
-        args = [f"/api/v1/posts/{self.post.id}/set_relation/", {"bookmark": False}]
-        response = self.client.patch(*args, format="json")
-        assert response.status_code == 200
-        assert response.data["bookmark"] is False
-
+        response = self.client.post(f"/api/v1/posts/{self.post.pk}/set_relation/",
+                                    json.dumps({"like": False, "bookmark": True}), content_type="application/json")
+        assert response.data == {"like": False, "bookmark": True}
+        response = self.client.post(f"/api/v1/posts/{self.post.pk}/set_relation/", json.dumps({"like": False}),
+                                    content_type="application/json")
+        assert response.data == {"like": False, "bookmark": True} == \
+               self.client.get(f"/api/v1/posts/{self.post.pk}/").data["relation"]
