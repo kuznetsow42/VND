@@ -1,10 +1,8 @@
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count, Q
 from rest_framework import serializers
 
 from api.models import Tag
 from api.sanitizer import sanitize_text
-from posts.models import Image, Post, UserPostRelation, Category
+from posts.models import Image, Post, Category
 from users.models import CustomUser
 
 
@@ -35,7 +33,7 @@ class AuthorSerializer(serializers.ModelSerializer):
 class CreatePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = "__all__"
+        fields = ["title", "id", "body", "tags", "categories", "authors"]
 
     def validate_body(self, value):
         clear_body = sanitize_text(value)
@@ -43,23 +41,28 @@ class CreatePostSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    likes = serializers.IntegerField(read_only=True)
     authors = AuthorSerializer(many=True, read_only=True)
+    likes = serializers.SerializerMethodField()
+    bookmarks = serializers.SerializerMethodField()
+    relation = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ["id", "title", "body", "tags", "created_at", "likes", "categories", "authors"]
+        fields = ["id", "title", "body", "tags", "created_at", "likes", "categories", "authors", "bookmarks",
+                  "relation"]
         depth = 1
 
+    def get_likes(self, obj):
+        return obj.likes.count()
 
-class UserPostRelationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserPostRelation
-        fields = ["user", "post", "like", "bookmark"]
+    def get_bookmarks(self, obj):
+        return obj.bookmarks.count()
 
-    def update_or_create(self):
-        user = self.validated_data.get("user")
-        post = self.validated_data.get("post")
-        instance, created = UserPostRelation.objects.update_or_create(user=user, post=post,
-                                                                      defaults=self.validated_data)
-        return self.to_representation(instance), created
+    def get_relation(self, obj):
+        user = self.context["request"].user
+        user_relation = {"like": False, "bookmark": False}
+        if user.is_anonymous:
+            return user_relation
+        user_relation["like"] = user in obj.likes.all()
+        user_relation["bookmark"] = user in obj.bookmarks.all()
+        return user_relation

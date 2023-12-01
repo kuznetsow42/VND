@@ -21,7 +21,8 @@ class Post(models.Model):
     tags = models.ManyToManyField(Tag, related_name="posts")
     body = models.TextField()
     created_at = models.DateField(auto_now_add=True)
-    readers = models.ManyToManyField(CustomUser, through="UserPostRelation", related_name="post_relations")
+    likes = models.ManyToManyField(CustomUser, related_name="liked_posts", blank=True)
+    bookmarks = models.ManyToManyField(CustomUser, related_name="bookmarked_posts", blank=True)
 
     def __str__(self):
         return self.title
@@ -30,13 +31,3 @@ class Post(models.Model):
 class Image(models.Model):
     file = models.ImageField(upload_to="posts/images")
     post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True, blank=True)
-
-
-class UserPostRelation(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    like = models.BooleanField(default=False)
-    bookmark = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.user} -- {self.post}"
