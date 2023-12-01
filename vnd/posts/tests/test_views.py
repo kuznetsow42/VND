@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from model_bakery import baker
 from rest_framework.status import HTTP_200_OK
@@ -124,8 +126,10 @@ class TestPosts:
         response = self.client.get("/api/v1/posts/")
         assert response.data[0]["relation"] == {"like": False, "bookmark": False}
         self.client.force_authenticate(self.user)
-        response = self.client.post(f"/api/v1/posts/{self.post.pk}/set_relation/", {"like": False, "bookmark": True})
+        response = self.client.post(f"/api/v1/posts/{self.post.pk}/set_relation/",
+                                    json.dumps({"like": False, "bookmark": True}), content_type="application/json")
         assert response.data == {"like": False, "bookmark": True}
-        response = self.client.post(f"/api/v1/posts/{self.post.pk}/set_relation/", {"like": False})
-        assert response.data == {"like": False, "bookmark": True} == self.client.get(f"/api/v1/posts/{self.post.pk}/").data["relation"]
-
+        response = self.client.post(f"/api/v1/posts/{self.post.pk}/set_relation/", json.dumps({"like": False}),
+                                    content_type="application/json")
+        assert response.data == {"like": False, "bookmark": True} == \
+               self.client.get(f"/api/v1/posts/{self.post.pk}/").data["relation"]
