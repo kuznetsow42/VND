@@ -1,4 +1,7 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter
+
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -39,6 +42,9 @@ class TagViewSet(ModelViewSet):
 
 class PostViewSet(ModelViewSet):
     queryset = Post.objects.all()
+    filter_backends = [OrderingFilter, DjangoFilterBackend]
+    filterset_fields = ["tags", "categories", "authors"]
+    ordering_fields = ["likes", "title", "bookmarks"]
 
     def get_permissions(self):
         if self.action in ["update", "partial_update", "destroy"]:
