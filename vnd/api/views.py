@@ -6,6 +6,7 @@ from .serializers import EngineSerializer, StatusSerializer
 
 
 class EngineViewSet(ModelViewSet):
+    pagination_class = None
     queryset = Engine.objects.all()
     serializer_class = EngineSerializer
 
@@ -16,6 +17,7 @@ class EngineViewSet(ModelViewSet):
 
 
 class StatusViewSet(ModelViewSet):
+    pagination_class = None
     queryset = Status.objects.all()
     serializer_class = StatusSerializer
 
