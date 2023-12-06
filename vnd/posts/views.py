@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
@@ -44,7 +45,7 @@ class PostViewSet(ModelViewSet):
     queryset = Post.objects.all()
     filter_backends = [OrderingFilter, DjangoFilterBackend]
     filterset_fields = ["tags", "categories", "authors"]
-    ordering_fields = ["likes", "title", "bookmarks"]
+    ordering_fields = ["likes_count", "title", "bookmarks_count"]
 
     def get_permissions(self):
         if self.action in ["update", "partial_update", "destroy"]:
@@ -67,6 +68,7 @@ class PostViewSet(ModelViewSet):
             "likes",
             "bookmarks"
         )
+        queryset = queryset.annotate(likes_count=Count("likes"), bookmarks_count=Count("bookmarks"))
         return queryset
 
     @action(detail=True, methods=["post"])
