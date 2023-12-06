@@ -64,8 +64,8 @@ class TestUsersViews:
         path = "/api/v1/users/"
         response = client.get(path)
         assert response.status_code == HTTP_200_OK
-        assert response.data[0]["username"] == "testuser"
-        assert response.data[0]["favorite_engines"][0]["name"] == engine.name
+        assert response.data["results"][0]["username"] == "testuser"
+        assert response.data["results"][0]["favorite_engines"][0]["name"] == engine.name
 
     def test_user_detail(self, user, token, client):
         path = "/api/v1/users/detail/"
