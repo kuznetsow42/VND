@@ -44,7 +44,7 @@ class TestCategories:
         category = self.categories[0]
         response = self.client.get("/api/v1/posts/categories/")
         assert response.status_code == HTTP_200_OK
-        assert len(response.data) == 5
+        assert len(response.data["results"]) == 5
         response = self.client.get(f"/api/v1/posts/categories/{category.id}/")
         assert response.status_code == HTTP_200_OK
 
@@ -124,7 +124,7 @@ class TestPosts:
 
     def test_relations(self):
         response = self.client.get("/api/v1/posts/")
-        assert response.data[0]["relation"] == {"like": False, "bookmark": False}
+        assert response.data["results"][0]["relation"] == {"like": False, "bookmark": False}
         self.client.force_authenticate(self.user)
         response = self.client.post(f"/api/v1/posts/{self.post.pk}/set_relation/",
                                     json.dumps({"like": False, "bookmark": True}), content_type="application/json")
