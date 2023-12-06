@@ -4,8 +4,7 @@ from rest_framework_serializer_extensions.serializers import SerializerExtension
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from api.serializers import StatusSerializer, EngineSerializer
-from posts.serializers import PostSerializer
+from api.serializers import EngineSerializer
 from users.models import CustomUser
 
 
@@ -50,17 +49,3 @@ class UserDetailSerializer(SerializerExtensionsMixin, serializers.ModelSerialize
                 "readonly": False
             }
         }
-
-
-class BookmarksSerializer(serializers.ModelSerializer):
-    bookmarked_posts = serializers.SerializerMethodField()
-
-    class Meta:
-        model = CustomUser
-        fields = ["bookmarked_posts"]
-
-    def get_bookmarked_posts(self, obj):
-        return PostSerializer(obj.bookmarked_posts.prefetch_related(
-            "authors", "authors__status", "tags",
-            "categories", "likes", "bookmarks"
-        ), many=True, context=self.context).data

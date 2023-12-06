@@ -1,13 +1,13 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
-from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, RetrieveAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework_serializer_extensions.views import SerializerExtensionsAPIViewMixin
 
 from users.models import CustomUser
-from users.serializers import RegisterSerializer, UserSerializer, UserDetailSerializer, BookmarksSerializer
+from users.serializers import RegisterSerializer, UserSerializer, UserDetailSerializer
 
 
 class Register(CreateAPIView):
@@ -46,12 +46,3 @@ class UserDetail(SerializerExtensionsAPIViewMixin, RetrieveUpdateDestroyAPIView)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
             return Response(serializer.data)
-
-
-class Bookmarks(RetrieveAPIView):
-    serializer_class = BookmarksSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        return CustomUser.objects.prefetch_related("bookmarked_posts").get(pk=self.request.user.pk)
-

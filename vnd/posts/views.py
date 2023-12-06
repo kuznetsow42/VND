@@ -55,12 +55,16 @@ class PostViewSet(ModelViewSet):
         return [IsAuthenticated()]
 
     def get_serializer(self, *args, **kwargs):
-        if self.action in ["list", "retrieve"]:
+        if self.action in ["list", "retrieve", "bookmarks"]:
             return PostSerializer(*args, **kwargs, context={"request": self.request})
         return CreatePostSerializer(*args, **kwargs)
 
     def get_queryset(self):
-        queryset = self.queryset.prefetch_related(
+        if self.action == "bookmarks":
+            queryset = self.request.user.bookmarked_posts.all()
+        else:
+            queryset = self.queryset
+        queryset = queryset.prefetch_related(
             "authors",
             "authors__status",
             "tags",
@@ -87,3 +91,7 @@ class PostViewSet(ModelViewSet):
         post.save()
         return Response(PostSerializer(post, context={"request": request}).get_relation(post),
                         status=HTTP_200_OK)
+
+    @action(detail=False, methods=["get"])
+    def bookmarks(self, request):
+        return super().list(request)
