@@ -72,7 +72,8 @@ class PostViewSet(ModelViewSet):
             "likes",
             "bookmarks"
         )
-        queryset = queryset.annotate(likes_count=Count("likes"), bookmarks_count=Count("bookmarks"))
+        queryset = queryset.annotate(likes_count=Count("likes", distinct=True),
+                                     bookmarks_count=Count("bookmarks", distinct=True))
         return queryset
 
     @action(detail=True, methods=["post"])
