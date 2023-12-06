@@ -42,21 +42,15 @@ class CreatePostSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     authors = AuthorSerializer(many=True, read_only=True)
-    likes = serializers.SerializerMethodField()
-    bookmarks = serializers.SerializerMethodField()
     relation = serializers.SerializerMethodField()
+    likes_count = serializers.IntegerField()
+    bookmarks_count = serializers.IntegerField()
 
     class Meta:
         model = Post
-        fields = ["id", "title", "body", "tags", "created_at", "likes", "categories", "authors", "bookmarks",
-                  "relation"]
+        fields = ["id", "title", "body", "tags", "created_at", "categories", "authors",
+                  "relation", "likes_count", "bookmarks_count"]
         depth = 1
-
-    def get_likes(self, obj):
-        return obj.likes.count()
-
-    def get_bookmarks(self, obj):
-        return obj.bookmarks.count()
 
     def get_relation(self, obj):
         user = self.context["request"].user
