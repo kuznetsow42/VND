@@ -1,9 +1,8 @@
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.decorators import api_view, action
+from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
-from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
-from rest_framework.mixins import DestroyModelMixin
+from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
@@ -21,10 +20,10 @@ class Register(CreateAPIView):
 class UsersReadOnly(ReadOnlyModelViewSet):
     filter_backends = [OrderingFilter, DjangoFilterBackend]
     ordering_fields = ["username"]
-    filterset_fields = ["status", "favorite_engines"]
+    filterset_fields = ["status", "favorite_engines", "subscribers"]
     queryset = CustomUser.objects.select_related("status") \
-        .prefetch_related("favorite_engines", "subscribers", "subscriptions") \
-        .annotate(subscribers_count=Count("subscribers"))
+        .prefetch_related("favorite_engines", "subscribers") \
+        .annotate(subscribers_count=Count("subscribers", distinct=True), posts_count=Count("posts", distinct=True))
     serializer_class = UserSerializer
 
     @action(detail=True, methods=["patch", "delete"], permission_classes=[IsAuthenticated])

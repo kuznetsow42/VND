@@ -34,11 +34,12 @@ class LoginSerializer(TokenObtainPairSerializer):
 class UserSerializer(serializers.ModelSerializer):
     relations = serializers.SerializerMethodField()
     subscribers_count = serializers.IntegerField()
+    posts_count = serializers.IntegerField()
 
     class Meta:
         model = CustomUser
         fields = ["id", "username", "avatar", "status", "bio", "favorite_engines", "links", "first_name", "last_name",
-                  "relations", "subscribers_count"]
+                  "relations", "subscribers_count", "posts_count"]
         depth = 1
 
     def get_relations(self, obj):
@@ -53,8 +54,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserDetailSerializer(SerializerExtensionsMixin, serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ["id", "username", "avatar", "email", "bio", "links", "first_name", "last_name", "status",
-                  "subscriptions"]
+        fields = ["id", "username", "avatar", "email", "bio", "links", "first_name", "last_name", "status"]
         expandable_fields = {
             "favorite_engines": {
                 "serializer": EngineSerializer,
