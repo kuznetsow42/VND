@@ -11,7 +11,8 @@ from rest_framework.viewsets import ModelViewSet
 
 from api.models import Tag
 from api.permissions import IsOwnerOrAdmin
-from posts.models import Image, Post, Category
+from comments.serializers import CreatePostCommentSerializer, PostCommentSerializer
+from posts.models import Image, Post, Category, PostComment
 from posts.serializers import ImageSerializer, PostSerializer, CategorySerializer, \
     TagSerializer, CreatePostSerializer
 
@@ -50,9 +51,9 @@ class PostViewSet(ModelViewSet):
     def get_permissions(self):
         if self.action in ["update", "partial_update", "destroy"]:
             return [IsOwnerOrAdmin()]
-        if self.action in ["list", "retrieve"]:
-            return [AllowAny()]
-        return [IsAuthenticated()]
+        if self.action in ["create", "set_relation"]:
+            return [IsAuthenticated()]
+        return [AllowAny()]
 
     def get_serializer(self, *args, **kwargs):
         if self.action in ["list", "retrieve", "bookmarks"]:
@@ -96,3 +97,21 @@ class PostViewSet(ModelViewSet):
     @action(detail=False, methods=["get"])
     def bookmarks(self, request):
         return super().list(request)
+
+    @action(detail=True, methods=["post"])
+    def add_comment(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        serializer = CreatePostCommentSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save(author=request.user, post=post)
+        return Response(serializer.data, 200)
+
+    @action(detail=True, methods=["get"])
+    def get_comments(self, request, pk):
+        queryset = PostComment.objects.select_related("author").prefetch_related("likes", "bookmarks", "children")
+        if "parent" in request.GET:
+            queryset = queryset.filter(parent=request.GET["parent"], post=pk)
+        else:
+            queryset = queryset.filter(parent=None, post=pk)
+        serializer = PostCommentSerializer(queryset, many=True, context={"request": request})
+        return Response(serializer.data, 200)

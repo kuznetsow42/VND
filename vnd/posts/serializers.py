@@ -3,6 +3,7 @@ from rest_framework import serializers
 from api.models import Tag
 from api.sanitizer import sanitize_text
 from posts.models import Image, Post, Category
+from api.utils import get_user_relations
 from users.models import CustomUser
 
 
@@ -53,10 +54,4 @@ class PostSerializer(serializers.ModelSerializer):
         depth = 1
 
     def get_relation(self, obj):
-        user = self.context["request"].user
-        user_relation = {"like": False, "bookmark": False}
-        if user.is_anonymous:
-            return user_relation
-        user_relation["like"] = user in obj.likes.all()
-        user_relation["bookmark"] = user in obj.bookmarks.all()
-        return user_relation
+        return get_user_relations(self.context["request"], obj)

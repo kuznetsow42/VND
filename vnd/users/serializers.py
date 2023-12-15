@@ -31,6 +31,12 @@ class LoginSerializer(TokenObtainPairSerializer):
         return token
 
 
+class LightUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ["id", "username", "avatar"]
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
