@@ -11,7 +11,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from api.models import Tag
 from api.permissions import IsOwnerOrAdmin
-from comments.serializers import CreatePostCommentSerializer, PostCommentSerializer
+from comments.serializers import CreatePostCommentSerializer, CommentSerializer
 from posts.models import Image, Post, Category, PostComment
 from posts.serializers import ImageSerializer, PostSerializer, CategorySerializer, \
     TagSerializer, CreatePostSerializer
@@ -114,5 +114,5 @@ class PostViewSet(ModelViewSet):
             queryset = queryset.filter(parent=request.GET["parent"], post=pk)
         else:
             queryset = queryset.filter(parent=None, post=pk)
-        serializer = PostCommentSerializer(queryset, many=True, context={"request": request})
+        serializer = CommentSerializer(queryset, many=True, context={"request": request})
         return Response(serializer.data, 200)

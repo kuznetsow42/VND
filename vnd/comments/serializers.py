@@ -14,10 +14,10 @@ class CreatePostCommentSerializer(serializers.ModelSerializer):
         extra_kwargs = {"author": {"required": False}, "post": {"required": False}}
 
     def to_representation(self, instance):
-        return PostCommentSerializer(context=self.context).to_representation(instance)
+        return CommentSerializer(context=self.context).to_representation(instance)
 
 
-class PostCommentSerializer(serializers.ModelSerializer):
+class CommentSerializer(serializers.ModelSerializer):
     author = LightUserSerializer(read_only=True)
     replies_count = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
