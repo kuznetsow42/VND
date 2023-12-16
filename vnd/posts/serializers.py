@@ -46,11 +46,12 @@ class PostSerializer(serializers.ModelSerializer):
     relation = serializers.SerializerMethodField()
     likes_count = serializers.IntegerField()
     bookmarks_count = serializers.IntegerField()
+    comments_count = serializers.IntegerField()
 
     class Meta:
         model = Post
         fields = ["id", "title", "body", "tags", "created_at", "categories", "authors",
-                  "relation", "likes_count", "bookmarks_count"]
+                  "relation", "likes_count", "bookmarks_count", "comments_count"]
         depth = 1
 
     def get_relation(self, obj):
