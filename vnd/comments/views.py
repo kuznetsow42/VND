@@ -6,7 +6,7 @@ from comments.serializers import PostCommentSerializer
 from posts.models import PostComment
 
 
-class ChangeRelation(APIView):
+class ChangePostCommentsRelation(APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, pk):
@@ -23,4 +23,6 @@ class ChangeRelation(APIView):
                 comment.bookmarks.remove(request.user)
         comment.save()
         return Response(PostCommentSerializer(comment, context={"request": request}).get_relation(comment), 200)
+
+
 
