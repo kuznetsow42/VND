@@ -13,6 +13,9 @@ class CreatePostCommentSerializer(serializers.ModelSerializer):
         fields = "__all__"
         extra_kwargs = {"author": {"required": False}, "post": {"required": False}}
 
+    def to_representation(self, instance):
+        return PostCommentSerializer(context=self.context).to_representation(instance)
+
 
 class PostCommentSerializer(serializers.ModelSerializer):
     author = LightUserSerializer(read_only=True)
