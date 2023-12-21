@@ -23,6 +23,7 @@ class AddImage(ListCreateAPIView):
 
 
 class CategoryViewSet(ModelViewSet):
+    pagination_class = None
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
@@ -33,6 +34,7 @@ class CategoryViewSet(ModelViewSet):
 
 
 class TagViewSet(ModelViewSet):
+    pagination_class = None
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
