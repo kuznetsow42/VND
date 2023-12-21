@@ -28,6 +28,7 @@ class LoginSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
         token["username"] = user.username
         token["avatar"] = user.avatar.url
+        token["id"] = user.id
         return token
 
 
