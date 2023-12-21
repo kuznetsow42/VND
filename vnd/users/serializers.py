@@ -38,10 +38,23 @@ class LightUserSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    relations = serializers.SerializerMethodField()
+    subscribers_count = serializers.IntegerField()
+    posts_count = serializers.IntegerField()
+
     class Meta:
         model = CustomUser
-        fields = ["id", "username", "avatar", "status", "bio", "favorite_engines", "links", "first_name", "last_name"]
+        fields = ["id", "username", "avatar", "status", "bio", "favorite_engines", "links", "first_name", "last_name",
+                  "relations", "subscribers_count", "posts_count"]
         depth = 1
+
+    def get_relations(self, obj):
+        user = self.context["request"].user
+        user_relation = {"subscribed": False}
+        if user.is_anonymous:
+            return user_relation
+        user_relation["subscribed"] = user in obj.subscribers.all()
+        return user_relation
 
 
 class UserDetailSerializer(SerializerExtensionsMixin, serializers.ModelSerializer):

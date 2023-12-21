@@ -11,6 +11,7 @@ class CustomUser(AbstractUser):
     bio = models.TextField(null=True, blank=True)
     favorite_engines = models.ManyToManyField(Engine, related_name="users", blank=True)
     links = models.JSONField(blank=True, null=True)
+    subscriptions = models.ManyToManyField("self", blank=True, related_name="subscribers", symmetrical=False)
 
     def __str__(self):
         return self.username
