@@ -53,7 +53,7 @@ class PostViewSet(ModelViewSet):
     def get_permissions(self):
         if self.action in ["update", "partial_update", "destroy"]:
             return [IsOwnerOrAdmin()]
-        if self.action in ["create", "set_relation"]:
+        if self.action in ["create", "set_relation", "add_comment", "bookmarks"]:
             return [IsAuthenticated()]
         return [AllowAny()]
 
