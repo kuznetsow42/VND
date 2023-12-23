@@ -1,7 +1,7 @@
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
-from rest_framework.filters import OrderingFilter
+
 
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
@@ -12,6 +12,7 @@ from rest_framework.viewsets import ModelViewSet
 from api.models import Tag
 from api.permissions import IsOwnerOrAdmin
 from comments.serializers import CreatePostCommentSerializer, CommentSerializer
+from posts.filters import PostFilter
 from posts.models import Image, Post, Category, PostComment
 from posts.serializers import ImageSerializer, PostSerializer, CategorySerializer, \
     TagSerializer, CreatePostSerializer
@@ -46,9 +47,8 @@ class TagViewSet(ModelViewSet):
 
 class PostViewSet(ModelViewSet):
     queryset = Post.objects.all()
-    filter_backends = [OrderingFilter, DjangoFilterBackend]
-    filterset_fields = ["tags", "categories", "authors"]
-    ordering_fields = ["likes_count", "title", "bookmarks_count"]
+    filterset_class = PostFilter
+    ordering_fields = ["likes_count", "bookmarks_count", "created_at", "comments_count"]
 
     def get_permissions(self):
         if self.action in ["update", "partial_update", "destroy"]:
