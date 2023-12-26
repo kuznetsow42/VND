@@ -23,6 +23,7 @@ django-cors-headers = "^4.3.0"
 djangorestframework-serializer-extensions = "^2.0.1"
 nh3 = "^0.2.14"
 model-bakery = "^1.17.0"
+django-unfold = "^0.18.1"
 
 
 [tool.poetry.group.test.dependencies]

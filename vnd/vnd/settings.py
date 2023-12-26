@@ -30,7 +30,12 @@ INTERNAL_IPS = [
 # Application definition
 
 INSTALLED_APPS = [
+    # admin
+    'unfold',
+    'unfold.contrib.forms',
     'django.contrib.admin',
+
+    # standard packages
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -50,6 +55,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'posts.apps.PostsConfig',
     'comments.apps.CommentsConfig',
+    'reports.apps.ReportsConfig',
 ]
 
 MIDDLEWARE = [
