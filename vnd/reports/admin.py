@@ -6,16 +6,17 @@ from unfold.admin import ModelAdmin
 from unfold.decorators import action
 
 from posts.models import Post
-from reports.models import Report, Reason
+from reports.models import Report, Reason, ClosedReport
 
 
 @admin.register(Report)
 class ReportAdmin(ModelAdmin):
-    list_display = ["id", "reported_at", "reason", "approved", "content_instance"]
+    list_display = ["id", "reported_at", "reason", "closed", "content_instance"]
     list_display_links = list_display
-    list_filter = ["approved", "reason", "reason__top_priority"]
-    readonly_fields = ["reason", "reporting_user", "content_instance", "content", "content_model", "content_id"]
-    actions_detail = ["remove_content"]
+    list_filter = ["closed", "reason", "reason__top_priority"]
+    readonly_fields = ["closed", "reason", "reporting_user", "content_instance", "content", "content_model",
+                       "content_id"]
+    actions_detail = ["approve"]
 
     def content(self, obj):
         reported_content = obj.content_instance
@@ -23,13 +24,23 @@ class ReportAdmin(ModelAdmin):
             return format_html(reported_content.body)
         return reported_content.text
 
-    @action(description="Remove content")
-    def remove_content(self, request: HttpRequest, object_id: int):
+    @action(description="Approve report")
+    def approve(self, request: HttpRequest, object_id: int):
         report = Report.objects.get(pk=object_id)
-        report.approved = True
+        report.close(approved=True, admin=request.user)
+        report.closed = True
         report.save()
-        report.content_instance.delete()
+        if report.reason.top_priority:
+            report.content_instance.delete()
         return redirect(f"/admin/reports/")
+
+
+@admin.register(ClosedReport)
+class ClosedReportAdmin(ModelAdmin):
+    list_display = ["id", "timestamp", "closed_by"]
+    list_display_links = list_display
+    list_filter = ["objected"]
+    readonly_fields = ["timestamp", "closed_by", "report", "objected", "approved"]
 
 
 admin.site.register(Reason)
