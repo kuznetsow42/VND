@@ -49,3 +49,6 @@ class Ban(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="bans")
     reason = models.ForeignKey(ClosedReport, on_delete=models.CASCADE)
     end = models.DateTimeField()
+
+    def __str__(self):
+        return f"{self.user} | {self.reason.report.reason}"
