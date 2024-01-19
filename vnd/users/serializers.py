@@ -7,7 +7,6 @@ from rest_framework_simplejwt import exceptions
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, AuthUser
 
 from api.serializers import EngineSerializer
-from reports.serializers import BanSerializer
 from users.models import CustomUser
 
 
