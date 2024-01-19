@@ -21,7 +21,8 @@ class Report(models.Model):
     content_instance = GenericForeignKey("content_model", "content_id")
     reported_at = models.DateTimeField(auto_now_add=True)
     closed = models.BooleanField(default=False)
-    reporting_user = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="reports")
+    reporting_user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="reports", null=True)
+    reported_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     reason = models.ForeignKey(Reason, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -29,7 +30,8 @@ class Report(models.Model):
 
     def close(self, approved: bool, admin: CustomUser):
         self.closed = True
-        ClosedReport.objects.create(report=self, closed_by=admin, approved=approved)
+        closed_report = ClosedReport.objects.create(report=self, closed_by=admin, approved=approved)
+        return closed_report
 
 
 class ClosedReport(models.Model):
@@ -41,3 +43,9 @@ class ClosedReport(models.Model):
 
     def __str__(self):
         return f"{self.closed_by} | {self.report}"
+
+
+class Ban(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="bans")
+    reason = models.ForeignKey(ClosedReport, on_delete=models.CASCADE)
+    end = models.DateTimeField()

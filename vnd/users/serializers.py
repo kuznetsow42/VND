@@ -1,10 +1,13 @@
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework_serializer_extensions.serializers import SerializerExtensionsMixin
 
 from django.contrib.auth.hashers import make_password
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt import exceptions
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, AuthUser
 
 from api.serializers import EngineSerializer
+from reports.serializers import BanSerializer
 from users.models import CustomUser
 
 
@@ -24,7 +27,14 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class LoginSerializer(TokenObtainPairSerializer):
     @classmethod
-    def get_token(cls, user):
+    def get_token(cls, user: AuthUser):
+        if hasattr(user, 'bans'):
+            ban = user.bans
+            ban_end_time = ban.end
+            remaining_time = ban_end_time - timezone.now()
+            if remaining_time.seconds > 0:
+                raise exceptions.AuthenticationFailed(f"This account baned for {remaining_time.days} days and "
+                                                      f"{remaining_time.seconds // 3600} hours")
         token = super().get_token(user)
         token["username"] = user.username
         token["avatar"] = user.avatar.url
