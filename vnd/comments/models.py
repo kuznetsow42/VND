@@ -4,7 +4,7 @@ from users.models import CustomUser
 
 
 class CommentBaseModel(models.Model):
-    author = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="comments")
+    author = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="comments", null=True)
     created_at = models.DateTimeField(auto_now=True)
     image = models.ImageField(upload_to="comments", blank=True)
     text = models.TextField()
@@ -14,6 +14,11 @@ class CommentBaseModel(models.Model):
 
     def __str__(self):
         return self.text
+
+    def delete(self, using=None, keep_parents=False):
+        self.image = None
+        self.text = "Removed by moderator"
+        self.save()
 
     class Meta:
         abstract = True
