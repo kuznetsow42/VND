@@ -18,7 +18,7 @@ class Category(models.Model):
 class Post(models.Model):
     title = models.CharField(max_length=200)
     authors = models.ManyToManyField(CustomUser, related_name="posts")
-    categories = models.ManyToManyField(Category, related_name="posts",)
+    categories = models.ManyToManyField(Category, related_name="posts")
     tags = models.ManyToManyField(Tag, related_name="posts")
     body = models.TextField()
     created_at = models.DateField(auto_now_add=True)
@@ -27,6 +27,9 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_owner(self):
+        return self.authors.first()
 
 
 class Image(models.Model):

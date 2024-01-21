@@ -20,5 +20,8 @@ class CommentBaseModel(models.Model):
         self.text = "Removed by moderator"
         self.save()
 
+    def get_owner(self):
+        return self.author.pk
+
     class Meta:
         abstract = True

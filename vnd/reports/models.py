@@ -22,7 +22,7 @@ class Report(models.Model):
     reported_at = models.DateTimeField(auto_now_add=True)
     closed = models.BooleanField(default=False)
     reporting_user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="reports", null=True)
-    reported_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    reported_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
     reason = models.ForeignKey(Reason, on_delete=models.CASCADE)
 
     def __str__(self):
