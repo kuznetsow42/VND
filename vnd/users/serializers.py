@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework_serializer_extensions.serializers import SerializerExtensionsMixin
@@ -31,7 +33,8 @@ class LoginSerializer(TokenObtainPairSerializer):
             ban = user.bans
             ban_end_time = ban.end
             remaining_time = ban_end_time - timezone.now()
-            if remaining_time.seconds > 0:
+            if remaining_time > timedelta(0):
+                print(remaining_time.seconds)
                 raise exceptions.AuthenticationFailed(f"This account baned for {remaining_time.days} days and "
                                                       f"{remaining_time.seconds // 3600} hours")
         token = super().get_token(user)
