@@ -28,10 +28,8 @@ class ReportAdmin(ModelAdmin):
     def approve(self, request: HttpRequest, object_id: int):
         report = Report.objects.get(pk=object_id)
         closed_report = report.close(approved=True, admin=request.user)
-        report.closed = True
-        report.save()
-        if report.reason.top_priority:
-            user = report.reported_user
+        user = report.reported_user
+        if report.reason.top_priority and user:
             if hasattr(user, 'bans'):
                 user.is_active = False
             else:

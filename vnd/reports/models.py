@@ -29,9 +29,12 @@ class Report(models.Model):
         return f"{self.content_model.name} : {str(self.content_instance)}"
 
     def close(self, approved: bool, admin: CustomUser):
-        self.closed = True
-        closed_report = ClosedReport.objects.create(report=self, closed_by=admin, approved=approved)
-        return closed_report
+        similar_reports = Report.objects.filter(content_model=self.content_model, content_id=self.content_id,
+                                                reason__top_priority=self.reason.top_priority, closed=False)
+        for report in similar_reports:
+            report.closed = True
+            report.save()
+            ClosedReport.objects.create(report=report, closed_by=admin, approved=approved)
 
 
 class ClosedReport(models.Model):
