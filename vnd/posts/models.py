@@ -31,6 +31,11 @@ class Post(models.Model):
     def get_owner(self):
         return self.authors.first()
 
+    def delete(self, using=None, keep_parents=False):
+        self.body = "Removed by moderator"
+        self.save()
+
+
 
 class Image(models.Model):
     file = models.ImageField(upload_to="posts/images")
