@@ -16,7 +16,7 @@ class ReportAdmin(ModelAdmin):
     list_display = ["id", "reported_at", "reason", "closed", "content_instance"]
     list_display_links = list_display
     list_filter = ["closed", "reason", "reason__top_priority"]
-    actions_detail = ["approve"]
+    actions_detail = ["approve", "disapprove"]
 
     def content(self, obj):
         reported_content = obj.content_instance
@@ -38,12 +38,18 @@ class ReportAdmin(ModelAdmin):
                 Ban.objects.create(reason=closed_report, user=user, end=ban_end)
         return redirect(f"/admin/reports/")
 
+    @action(description="Disapprove report")
+    def disapprove(self, request: HttpRequest, object_id: int):
+        report = Report.objects.get(pk=object_id)
+        report.close(approved=False, admin=request.user)
+        return redirect(f"/admin/reports/report/")
+
 
 @admin.register(ClosedReport)
 class ClosedReportAdmin(ModelAdmin):
     list_display = ["id", "timestamp", "closed_by"]
     list_display_links = list_display
-    list_filter = ["objected"]
+    list_filter = ["objected", "approved"]
     readonly_fields = ["timestamp", "closed_by", "report", "objected", "approved"]
 
 
