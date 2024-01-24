@@ -44,7 +44,7 @@ class TestCategories:
         category = self.categories[0]
         response = self.client.get("/api/v1/posts/categories/")
         assert response.status_code == HTTP_200_OK
-        assert len(response.data["results"]) == 5
+        assert len(response.data) == 5
         response = self.client.get(f"/api/v1/posts/categories/{category.id}/")
         assert response.status_code == HTTP_200_OK
 
