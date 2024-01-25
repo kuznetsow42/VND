@@ -40,4 +40,11 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_relation(self, obj):
         return get_user_relations(self.context["request"], obj)
-        
+
+
+class LightCommentSerializer(serializers.ModelSerializer):
+    author = LightUserSerializer(read_only=True)
+
+    class Meta:
+        model = PostComment
+        fields = ["id", "author", "image", "text", "created_at"]

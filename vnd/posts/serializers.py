@@ -56,3 +56,11 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_relation(self, obj):
         return get_user_relations(self.context["request"], obj)
+
+
+class LightPostSerializer(serializers.ModelSerializer):
+    authors = AuthorSerializer(many=True)
+
+    class Meta:
+        model = Post
+        fields = ["id", "title", "body", "tags", "created_at", "categories", "authors"]
